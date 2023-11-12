@@ -11,6 +11,7 @@ public class Box {
             {1, 1, 1},
     };
     int[] taken = new int[candidates.length];
+    int[] indices = new int[candidates.length];
     int freeSpace = len * len * len;
 
     Box(final int max, final boolean withMagicCuboid) {
@@ -21,6 +22,9 @@ public class Box {
                 }
             }
         }
+        for (int i = 0; i < indices.length; i++) {
+            indices[i] = i;
+        }
 
         this.max = max;
         if (withMagicCuboid) {
@@ -29,8 +33,6 @@ public class Box {
             taken[2]++;
             freeSpace--;
         }
-
-        solve(0, 0);
     }
 
     boolean insert(final int c, final int x, final int y, final int z, final int dir) {
@@ -174,43 +176,62 @@ public class Box {
         taken[c]--;
     }
 
-    boolean isSolution() {
-        return freeSpace <= 0;
+    boolean isSolved() {
+        return freeSpace == 0;
     }
 
-    boolean hasSolution() {
+    boolean isSolvable() {
         return freeSpace > 0;
     }
 
-    boolean solve(final int c, final int n) {
-        if (c >= candidates.length || n >= max || !hasSolution()) {
+    void startSolving() {
+        solve(0);
+    }
+
+    boolean solve(final int n) {
+        if (n >= max) {
             return false;
         }
-        for (int i = 0; i < len; i++) {
-            for (int j = 0; j < len; j++) {
-                for (int k = 0; k < len; k++) {
-                    if (c == 2) {
-                        // take an abbreviation
-                        if (insert(c, i, j, k, 0)) {
-                            if (isSolution()) {
-                                return true;
-                            }
-                            if (hasSolution() && (solve(c, n + 1) || solve(c + 1, 0))) {
-                                return true;
-                            }
-                            remove(c, i, j, k, 0);
-                        }
-                    } else {
-                        // take all directions
-                        for (int d = 0; d < 6; d++) {
-                            if (insert(c, i, j, k, d)) {
-                                if (isSolution()) {
+        int[] cs = indices;
+        if (n == 0) {
+            cs = new int[candidates.length];
+            for (int i = 0; i < cs.length; i++) {
+                cs[i] = i;
+            }
+            for (int i = 0; i < cs.length; i++) {
+                int r = (int) (Math.random() * cs.length);
+                int t = cs[i];
+                cs[i] = cs[r];
+                cs[r] = t;
+            }
+        }
+        for (final int current : cs) {
+            for (int i = 0; i < len; i++) {
+                for (int j = 0; j < len; j++) {
+                    for (int k = 0; k < len; k++) {
+                        if (current == 2) {
+                            // take a abbreviation
+                            if (insert(current, i, j, k, 0)) {
+                                if (isSolved()) {
                                     return true;
                                 }
-                                if (hasSolution() && (solve(c, n + 1) || solve(c + 1, 0))) {
+                                if (isSolvable() && solve(n + 1)) {
                                     return true;
                                 }
-                                remove(c, i, j, k, d);
+                                remove(current, i, j, k, 0);
+                            }
+                        } else {
+                            // take all directions
+                            for (int d = 0; d < 6; d++) {
+                                if (insert(current, i, j, k, d)) {
+                                    if (isSolved()) {
+                                        return true;
+                                    }
+                                    if (isSolvable() && solve(n + 1)) {
+                                        return true;
+                                    }
+                                    remove(current, i, j, k, d);
+                                }
                             }
                         }
                     }
@@ -220,29 +241,27 @@ public class Box {
         return false;
     }
 
+    public static void solveAndPrint(final int n, final boolean withMagicCuboid) {
+        System.out.println("Start solving with " + n + " depth and " + (withMagicCuboid ? "magic cuboid" : "no magic cuboid"));
+        Box box = new Box(n, withMagicCuboid);
+        box.startSolving();
+        System.out.println(box.isSolved());
+        System.out.println(Arrays.toString(box.taken));
+        System.out.println(Arrays.deepToString(box.solution));
+    }
+
     public static void main(final String[] args) {
-        for (int n = 25; n >= 21; n--) {
-            System.out.println("n = " + n);
-            Box box = new Box(n, true);
-            System.out.println(box.isSolution());
-            System.out.println(Arrays.toString(box.taken));
-            System.out.println(Arrays.deepToString(box.solution));
-        }
+        solveAndPrint(0, false);
+        solveAndPrint(1, false);
+        solveAndPrint(2, false);
+        solveAndPrint(3, false);
+
         // The problematic cases:
-        {
-            int n = 20;
-            System.out.println("n = " + n);
-            Box box = new Box(n, true);
-            System.out.println(box.isSolution());
-            System.out.println(Arrays.toString(box.taken));
-            System.out.println(Arrays.deepToString(box.solution));
-        }
-        for (int n = 1; n <= 6; n++) {
-            System.out.println("n = " + n);
-            Box box = new Box(n, true);
-            System.out.println(box.isSolution());
-            System.out.println(Arrays.toString(box.taken));
-            System.out.println(Arrays.deepToString(box.solution));
-        }
+        solveAndPrint(4, false);
+        solveAndPrint(5, false);
+        solveAndPrint(6, false);
+
+        solveAndPrint(23, false);
+        solveAndPrint(20, false);
     }
 }
