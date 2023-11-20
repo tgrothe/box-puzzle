@@ -11,3 +11,9 @@ Possible candidates are:
 An additional "magic" box with the dimensions `1x1x1` should always be placed in the middle/center of the large box.
 
 This should be solved with backtracking in Java.
+
+---
+
+One solution could be:
+
+![img1](img1.png)
