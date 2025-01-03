@@ -1,8 +1,8 @@
 import java.util.Arrays;
 
 public class Box {
-  private final int len = 5;
-  private final int empty = -1;
+  private static final int len = 5;
+  private static final int empty = -1;
   private final int maxCandidates;
   private final boolean withMagicCuboid;
   private final int[][][] solution = new int[len][len][len];
@@ -80,6 +80,7 @@ public class Box {
         xyz[1] += j;
         xyz[2] += i;
       }
+      default -> throw new IllegalArgumentException("Invalid direction: " + dir);
     }
   }
 
