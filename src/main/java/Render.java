@@ -1,7 +1,16 @@
 import java.awt.*;
 import javax.swing.*;
 
+/** The Render class is responsible for rendering a 3D box puzzle solution using Java Swing. */
 public class Render {
+
+  /**
+   * Returns a color based on the index and level.
+   *
+   * @param index The index of the candidate box.
+   * @param level The level of the box.
+   * @return The color corresponding to the index and level.
+   */
   private static Color getColor(final int index, final int level) {
     float a = (5 - level) / 5f;
     return switch (index) {
@@ -12,6 +21,12 @@ public class Render {
     };
   }
 
+  /**
+   * Constructs a Render object and initializes the JFrame to display the solution.
+   *
+   * @param solution The 3D array representing the solution of the box puzzle.
+   * @param maxCandidates The maximum number of candidates for each type of smaller box.
+   */
   public Render(final int[][][] solution, final int maxCandidates) {
     int widthAndHeight = 800;
 
@@ -50,7 +65,13 @@ public class Render {
     frame.setVisible(true);
   }
 
+  /**
+   * The main method to run the Render class.
+   *
+   * @param args The command-line arguments.
+   */
   public static void main(final String[] args) {
+    // Renders one of the solutions of the 3D box puzzle.
     new Render(
         new int[][][] {
           {{13, 6, 6, 6, 6}, {7, 6, 6, 6, 6}, {7, 0, 0, 1, 1}, {7, 0, 0, 1, 1}, {7, 0, 0, 8, 8}},
