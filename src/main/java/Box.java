@@ -1,16 +1,34 @@
 import java.util.Arrays;
 
+/**
+ * The Box class represents a 3D box puzzle solver. It attempts to fill a 5x5x5 box with smaller
+ * boxes of different dimensions. The class supports an optional "magic" box that is always placed
+ * in the center. The solving process uses backtracking.
+ */
 public class Box {
+  /** The length of the box. */
   private static final int len = 5;
+
+  /** The value representing an empty space in the box. */
   private static final int empty = -1;
+
+  /** The maximum number of candidates for each type of smaller box. */
   private final int maxCandidates;
+
+  /** Indicates whether the box includes a "magic" cuboid. */
   private final boolean withMagicCuboid;
+
+  /** The 3D array representing the solution. */
   private final int[][][] solution = new int[len][len][len];
+
+  /** The array of candidate smaller boxes. */
   private final int[][] candidates = {
     {2, 2, 3},
     {1, 2, 4},
     {1, 1, 1},
   };
+
+  /** The array of random candidate orders. */
   private final int[][] randomCandidates = {
     {0, 1, 2},
     {0, 2, 1},
@@ -19,10 +37,23 @@ public class Box {
     {2, 0, 1},
     {2, 1, 0},
   };
+
+  /** The array representing the number of available smaller boxes for each type. */
   private final int[] available = new int[candidates.length];
+
+  /** The array representing the coordinates of a box. */
   private final int[] xyz = new int[3];
+
+  /** The number of free spaces left in the box. */
   private int freeSpace = len * len * len;
 
+  /**
+   * Constructs a Box object with the specified maximum number of candidates and whether it includes
+   * a magic cuboid.
+   *
+   * @param maxCandidates The maximum number of candidates for each type of smaller box.
+   * @param withMagicCuboid Indicates whether the box includes a "magic" cuboid.
+   */
   public Box(final int maxCandidates, final boolean withMagicCuboid) {
     for (int i = 0; i < len; i++) {
       for (int j = 0; j < len; j++) {
@@ -44,6 +75,17 @@ public class Box {
     }
   }
 
+  /**
+   * Fills the coordinates array with the coordinates of a box.
+   *
+   * @param dir The direction of the box.
+   * @param x The x-coordinate of the box.
+   * @param y The y-coordinate of the box.
+   * @param z The z-coordinate of the box.
+   * @param i The x-offset of the box.
+   * @param j The y-offset of the box.
+   * @param k The z-offset of the box.
+   */
   private void fillCoordinates(
       final int dir, final int x, final int y, final int z, final int i, final int j, final int k) {
     xyz[0] = x;
@@ -84,6 +126,16 @@ public class Box {
     }
   }
 
+  /**
+   * Checks if a box can be inserted at the specified coordinates and direction.
+   *
+   * @param c The index of the candidate box.
+   * @param x The x-coordinate of the box.
+   * @param y The y-coordinate of the box.
+   * @param z The z-coordinate of the box.
+   * @param dir The direction of the box.
+   * @return True if the box can be inserted, false otherwise.
+   */
   private boolean isInsertable(final int c, final int x, final int y, final int z, final int dir) {
     if (available[c] <= 0) {
       return false;
@@ -107,10 +159,25 @@ public class Box {
     return true;
   }
 
+  /**
+   * Gets the index to insert a box.
+   *
+   * @param c The index of the candidate box.
+   * @return The index to insert the box.
+   */
   private int getIndexToInsert(final int c) {
     return c * maxCandidates + (maxCandidates - available[c]);
   }
 
+  /**
+   * Inserts a box at the specified coordinates and direction.
+   *
+   * @param c The index of the candidate box.
+   * @param x The x-coordinate of the box.
+   * @param y The y-coordinate of the box.
+   * @param z The z-coordinate of the box.
+   * @param dir The direction of the box.
+   */
   private void insert1(final int c, final int x, final int y, final int z, final int dir) {
     int toInsert = getIndexToInsert(c);
     int[] a = candidates[c];
@@ -126,6 +193,16 @@ public class Box {
     available[c]--;
   }
 
+  /**
+   * Attempts to insert a box at the specified coordinates and direction.
+   *
+   * @param c The index of the candidate box.
+   * @param x The x-coordinate of the box.
+   * @param y The y-coordinate of the box.
+   * @param z The z-coordinate of the box.
+   * @param dir The direction of the box.
+   * @return True if the box was successfully inserted, false otherwise.
+   */
   private boolean insert(final int c, final int x, final int y, final int z, final int dir) {
     if (isInsertable(c, x, y, z, dir)) {
       insert1(c, x, y, z, dir);
@@ -134,6 +211,15 @@ public class Box {
     return false;
   }
 
+  /**
+   * Removes a box from the specified coordinates and direction.
+   *
+   * @param c The index of the candidate box.
+   * @param x The x-coordinate of the box.
+   * @param y The y-coordinate of the box.
+   * @param z The z-coordinate of the box.
+   * @param dir The direction of the box.
+   */
   private void remove(final int c, final int x, final int y, final int z, final int dir) {
     int[] a = candidates[c];
     for (int i = 0; i < a[0]; i++) {
@@ -148,10 +234,21 @@ public class Box {
     available[c]++;
   }
 
+  /**
+   * Checks if the box is completely filled.
+   *
+   * @return True if the box is completely filled, false otherwise.
+   */
   private boolean isSolved() {
     return freeSpace == 0;
   }
 
+  /**
+   * Checks if the box is probably solvable at the specified level.
+   *
+   * @param level The level to check.
+   * @return True if the box is probably solvable, false otherwise.
+   */
   private boolean isProbableSolvable(final int level) {
     if (freeSpace <= 0) {
       return false;
@@ -171,6 +268,13 @@ public class Box {
     return true;
   }
 
+  /**
+   * Solves the box puzzle using backtracking.
+   *
+   * @param index The current index.
+   * @param nextRandom Indicates whether to use random candidate order.
+   * @return True if the box puzzle is solved, false otherwise.
+   */
   private boolean solve(final int index, final boolean nextRandom) {
     if (index >= len * len * len) {
       return isSolved();
@@ -259,10 +363,16 @@ public class Box {
     return solve(index + 1, nextRandom);
   }
 
+  /**
+   * Starts solving the box puzzle.
+   *
+   * @param nextRandom Indicates whether to use random candidate order.
+   */
   public void startSolving(final boolean nextRandom) {
     solve(0, nextRandom);
   }
 
+  /** Prints information about the box puzzle. */
   public void printInfo() {
     System.out.println("len             = " + len);
     System.out.println("maxCandidates   = " + maxCandidates);
@@ -276,6 +386,13 @@ public class Box {
     }
   }
 
+  /**
+   * Solves the box puzzle and prints the solution.
+   *
+   * @param maxCandidates The maximum number of candidates for each type of smaller box.
+   * @param withMagicCuboid Indicates whether the box includes a "magic" cuboid.
+   * @param nextRandom Indicates whether to use random candidate order.
+   */
   public static void solveAndPrint(
       final int maxCandidates, final boolean withMagicCuboid, final boolean nextRandom) {
     System.out.println(
@@ -290,6 +407,11 @@ public class Box {
     box.printInfo();
   }
 
+  /**
+   * The main method to run the box puzzle solver.
+   *
+   * @param args The command-line arguments.
+   */
   public static void main(final String[] args) {
     solveAndPrint(15, true, true);
     solveAndPrint(6, true, true);
