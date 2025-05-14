@@ -10,7 +10,7 @@ plugins {
 }
 
 application {
-    mainClass.set(System.getProperty('main_class') ?: 'Main')
+    mainClass.set(System.getProperty('main_class') ?: 'Render')
 }
 
 repositories {
