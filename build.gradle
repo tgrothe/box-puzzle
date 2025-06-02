@@ -9,7 +9,7 @@ plugins {
 }
 
 application {
-    mainClass.set(System.getProperty('main_class') ?: 'Main')
+    mainClass.set(System.getProperty('main_class') ?: 'Render')
 }
 
 repositories {
@@ -17,8 +17,6 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.apache.commons:commons-lang3:3.17.0'
-    implementation 'org.json:json:20250517'
 }
 
 java {
